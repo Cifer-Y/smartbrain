@@ -48,7 +48,13 @@ class App extends Component {
 
   logoutUser = () => {
     this.onRouteChange('signin')
-    this.setState({currentUser: null})
+    this.setState({
+      inputField: '',
+      imgUrl: '',
+      boxes: [],
+      route: 'signin',
+      currentUser: null
+    })
   }
 
   calculateFaceRegions = (response) => {
