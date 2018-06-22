@@ -1,12 +1,16 @@
-import React, {Component} from 'react'
-
-class SigninForm extends Component {
+import React, { Component } from 'react';
+class Register extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      name: '',
       email: '',
       password: '',
     }
+  }
+
+  onNameChange = (event) => {
+    this.setState({name: event.target.value})
   }
 
   onEmailChange = (event) => {
@@ -18,14 +22,16 @@ class SigninForm extends Component {
   }
 
   onSubmitClick = () => {
-    const user = {
+    const newUser = {
+      name: this.state.name,
       email: this.state.email,
       password: this.state.password,
     }
-    fetch('http://localhost:3003/signin', {
+
+    fetch('http://localhost:3003/register', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(user)
+      body: JSON.stringify(newUser)
     })
     .then(resp => resp.json())
     .then(data => {
@@ -34,22 +40,33 @@ class SigninForm extends Component {
         this.props.loadUser(data)
         this.props.onRouteChange('home')
       } else {
-        this.props.onRouteChange('signin')
+        this.props.onRouteChange('register')
       }
     })
     .catch(err => {
       console.log(err)
-      this.props.onRouteChange('signin')
+      this.props.onRouteChange('register')
     })
+    console.log(newUser)
   }
-  render () {
-    const {onRouteChange} = this.props
+
+  render() {
     return (
       <article className="br3 shadow-5 ba b--black-10 mv4 w-100 w-50-m w-25-l mw7 center">
         <main className="pa4 black-80">
           <div className="measure">
-            <fieldset id="sign_in" className="ba b--transparent ph0 mh0">
-              <legend className="f3 fw6 ph0 mh0">Sign In</legend>
+            <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
+              <legend className="f3 fw6 ph0 mh0">Register</legend>
+              <div className="mt3">
+                <label className="db fw6 lh-copy f6" htmlFor="username">Name</label>
+                <input
+                  onChange={this.onNameChange}
+                  className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
+                  type="text"
+                  name="username"
+                  id="username"
+                />
+              </div>
               <div className="mt3">
                 <label className="db fw6 lh-copy f6" htmlFor="email-address">Email</label>
                 <input
@@ -57,7 +74,7 @@ class SigninForm extends Component {
                   className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                   type="email"
                   name="email-address"
-                  id="email-address"
+                  id="signup-email"
                 />
               </div>
               <div className="mv3">
@@ -67,7 +84,7 @@ class SigninForm extends Component {
                   className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
                   type="password"
                   name="password"
-                  id="password"
+                  id="signup-password"
                 />
               </div>
             </fieldset>
@@ -76,11 +93,8 @@ class SigninForm extends Component {
                 onClick={this.onSubmitClick}
                 className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
                 type="submit"
-                value="Sign in"
+                value="Register"
               />
-            </div>
-            <div className="lh-copy mt3">
-              <p className="f6 link dim black db pointer" onClick={() => onRouteChange('register')}>Register</p>
             </div>
           </div>
         </main>
@@ -89,4 +103,4 @@ class SigninForm extends Component {
   }
 }
 
-export default SigninForm;
+export default Register;

@@ -1,13 +1,14 @@
-import React from 'react';
+import React from 'react'
 
-const Rank = () => {
+const Rank = ({currentUser}) => {
+  console.log(currentUser)
   return (
     <div>
       <div className="white f3">
-        {'Hello Cifer, your current rank is...'}
+        {`Hello ${currentUser.name}, your detected image count is...`}
       </div>
       <div className="white f1">
-        {'#3'}
+        {currentUser.entries}
       </div>
     </div>
   )

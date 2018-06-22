@@ -8,7 +8,7 @@ import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
 import FaceDetectBox from './components/FaceDetectBox/FaceDetectBox';
 import SigninForm from './components/SigninForm/SigninForm';
-import SignupForm from './components/SignupForm/SignupForm';
+import Register from './components/Register/Register';
 
 const particleParams = {
   particles: {
@@ -33,12 +33,22 @@ class App extends Component {
       inputField: '',
       imgUrl: '',
       boxes: [],
-      route: 'signin'
+      route: 'signin',
+      currentUser: null,
     }
   }
 
   onInputChange = (event) => {
     this.setState({inputField: event.target.value})
+  }
+
+  loadUser = (user) => {
+    this.setState({currentUser: user})
+  }
+
+  logoutUser = () => {
+    this.onRouteChange('signin')
+    this.setState({currentUser: null})
   }
 
   calculateFaceRegions = (response) => {
@@ -59,11 +69,25 @@ class App extends Component {
   }
 
   onSubmitClick = () => {
-    const {inputField} = this.state;
+    const {inputField, currentUser} = this.state;
     this.setState({imgUrl:inputField})
     clarifaiApp.models
       .predict(Clarifai.FACE_DETECT_MODEL,inputField)
-      .then(this.calculateFaceRegions)
+      .then(res => {
+        this.calculateFaceRegions(res)
+        fetch(`http://localhost:3003/users/${currentUser.id}/image`, {
+          method: 'post',
+          headers: {'Content-Type': 'application/json'},
+        })
+        .then(resp => resp.json())
+        .then(data => {
+          this.setState({currentUser: data})
+        })
+        .catch(err => {
+          console.log(err)
+          this.props.onRouteChange('signin')
+        })
+      })
       .catch(console.log)
   }
 
@@ -80,25 +104,25 @@ class App extends Component {
   }
 
   render() {
-    const {route} = this.state
+    const {route, currentUser} = this.state
     return (
       <div className="App">
           <Particles className='particle' params={particleParams}/>
-          <Navigation route={route} onRouteChange={this.onRouteChange}/>
+          <Navigation route={route} logoutUser={this.logoutUser} onRouteChange={this.onRouteChange}/>
             {
                 route === 'home'
                   ?
                     <div>
                       <Logo />
-                      <Rank />
+                      <Rank currentUser={currentUser}/>
                       <ImageLinkForm onInputChange={this.onInputChange} onSubmitClick={this.onSubmitClick} />
                       <FaceDetectBox imgUrl={this.state.imgUrl} boxes={this.state.boxes}/>
                     </div>
                   : (
                       route === 'signin'
                           ?
-                            <SigninForm onRouteChange={this.onRouteChange}/>
-                          : <SignupForm onRouteChange={this.onRouteChange}/>
+                            <SigninForm loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
+                          : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
                     )
             }
 
